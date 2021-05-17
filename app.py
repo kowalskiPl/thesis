@@ -7,13 +7,13 @@ import cv2
 
 from FeatureDetector import FeatureDetector
 from OnboardCamera import OnboardCamera
+from Stitcher import Stitcher
 
 onboard_camera: OnboardCamera  # OnboardCamera(1280, 720)
-# camera.open_camera()
 app = Flask(__name__)
 time.sleep(2.0)
-# camera.start_frame_capture()
 detector = FeatureDetector()
+stitcher: Stitcher
 
 
 @app.route("/")
@@ -48,10 +48,12 @@ def main():
     ap.add_argument("-c", "--usb-cameras", required=False, type=int, help="Specifies number of usb cameras to use")
     args = vars(ap.parse_args())
 
+    cameras = 0
     if args["onboard_camera"]:
         onboard_camera = OnboardCamera(1280, 720)
         onboard_camera.open_camera()
         onboard_camera.start_frame_capture()
+        cameras += 1
 
     app.run(host=args["ip"], port=args["port"], debug=True, threaded=True, use_reloader=False)
 

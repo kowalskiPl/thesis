@@ -3,17 +3,21 @@ import sys
 
 import cv2
 import threading
+import numpy as np
+
+from CameraInterface import CameraInterface
 
 
-class OnboardCamera:
+class OnboardCamera(CameraInterface):
+    __readThread: threading.Thread
+    __frame: np.ndarray
+    videoCapture: cv2.VideoCapture
+
     def __init__(self, width, height):
         self.__width = width
         self.__height = height
-        self.videoCapture = None
-        self.__frame = None
         self.__lock = threading.Lock()
         self.__read = True
-        self.__readThread = None
 
     def open_camera(self):
         # from https://gist.github.com/jkjung-avt/86b60a7723b97da19f7bfa3cb7d2690e
@@ -62,3 +66,4 @@ class OnboardCamera:
     def stop_capture(self):
         self.__read = False
         self.__readThread.join()
+        self.videoCapture.release()
