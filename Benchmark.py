@@ -1,3 +1,4 @@
+import argparse
 from enum import Enum
 
 import cv2
@@ -36,3 +37,12 @@ def draw_keypoints_orb(kp, image):
 def draw_keypoints_fast(kp, image):
     global fast_detector
     return cv2.drawKeypoints(image, fast_detector.convert(kp), None, color=(0, 255, 0))
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-d", "--detect-compute", action="store_true", required=False)
+    ap.add_argument("-s", "--stitch", action="store_true", required=False)
+    ap.add_argument("-i1", "--image-1", type=str, required=True)
+    ap.add_argument("-i2", "--image-2", type=str, required=True)
+    args = vars(ap.parse_args())
