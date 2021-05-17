@@ -16,6 +16,7 @@ class OnboardCamera:
         self.__readThread = None
 
     def open_camera(self):
+        # from https://gist.github.com/jkjung-avt/86b60a7723b97da19f7bfa3cb7d2690e
         gst_elements = str(subprocess.check_output('gst-inspect-1.0'))
         if 'nvcamerasrc' in gst_elements:
             # On versions of L4T prior to 28.1, add 'flip-method=2' into gst_str
