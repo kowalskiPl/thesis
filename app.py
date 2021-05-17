@@ -8,13 +8,14 @@ import cv2
 from FeatureDetector import FeatureDetector
 from OnboardCamera import OnboardCamera
 from Stitcher import Stitcher
+from USBCamera import USBCamera
 
 onboard_camera: OnboardCamera  # OnboardCamera(1280, 720)
 app = Flask(__name__)
 time.sleep(2.0)
 detector = FeatureDetector()
 stitcher: Stitcher
-
+usb_camera = USBCamera(1280, 720, 0)
 
 @app.route("/")
 def index():
@@ -23,10 +24,12 @@ def index():
 
 def generate_frame():
     while True:
-        frame = onboard_camera.get_frame()
-        kp, ds = detector.detect_features_and_keypoints(frame)
-        keypoints_frame = cv2.drawKeypoints(frame, detector.cudaOrb.convert(kp), None, color=(0, 255, 0))
-        (flag, encodedImage) = cv2.imencode(".jpg", keypoints_frame)
+        # frame = onboard_camera.get_frame()
+        frame = usb_camera.get_frame()
+        # kp, ds = detector.detect_features_and_keypoints(frame)
+        # keypoints_frame = cv2.drawKeypoints(frame, detector.cudaOrb.convert(kp), None, color=(0, 255, 0))
+        # (flag, encodedImage) = cv2.imencode(".jpg", keypoints_frame)
+        (flag, encodedImage) = cv2.imencode(".jpg", frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +
                bytearray(encodedImage) + b'\r\n')
 
@@ -54,7 +57,8 @@ def main():
         onboard_camera.open_camera()
         onboard_camera.start_frame_capture()
         cameras += 1
-
+    usb_camera.open_camera()
+    usb_camera.start_frame_capture()
     app.run(host=args["ip"], port=args["port"], debug=True, threaded=True, use_reloader=False)
 
 

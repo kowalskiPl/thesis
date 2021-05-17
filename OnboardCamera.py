@@ -19,7 +19,7 @@ class OnboardCamera(CameraInterface):
         self.__lock = threading.Lock()
         self.__read = True
 
-    def open_camera(self):
+    def open_camera(self) -> None:
         # from https://gist.github.com/jkjung-avt/86b60a7723b97da19f7bfa3cb7d2690e
         gst_elements = str(subprocess.check_output('gst-inspect-1.0'))
         if 'nvcamerasrc' in gst_elements:
@@ -44,14 +44,13 @@ class OnboardCamera(CameraInterface):
         else:
             raise RuntimeError('onboard camera source not found!')
         self.videoCapture = cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
-        return self.videoCapture
 
     def __read_frames(self):
         while self.__read:
             with self.__lock:
                 _, self.__frame = self.videoCapture.read()
 
-    def start_frame_capture(self):
+    def start_frame_capture(self) -> None:
         if not self.videoCapture.isOpened():
             sys.exit('Failed to open onboard camera!')
         self.__read = True
@@ -59,7 +58,7 @@ class OnboardCamera(CameraInterface):
         self.__readThread.daemon = True
         self.__readThread.start()
 
-    def get_frame(self):
+    def get_frame(self) -> np.ndarray:
         with self.__lock:
             return self.__frame
 
