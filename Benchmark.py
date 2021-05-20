@@ -7,8 +7,10 @@ import cv2
 import imutils
 import numpy as np
 
-orb_detector = cv2.cuda_ORB.create(nfeatures=500)
+orb_detector = cv2.cuda_ORB.create(nfeatures=1000)
 fast_detector = cv2.cuda_FastFeatureDetector.create()
+matcher = cv2.cuda_DescriptorMatcher.createBFMatcher(cv2.NORM_L1)
+Homography = None  # cashed homography
 
 
 class Detector(Enum):
@@ -19,10 +21,8 @@ class Detector(Enum):
 detector_type: Detector
 cuda_mat = cv2.cuda_GpuMat()
 
+
 def detect_features(image: np.ndarray, detector: Detector):
-    global orb_detector
-    global fast_detector
-    global cuda_mat
     cuda_mat.upload(image)
     grey_mat = cv2.cuda.cvtColor(cuda_mat, cv2.COLOR_RGB2GRAY)
 
@@ -44,10 +44,34 @@ def draw_keypoints_fast(kp, image):
     return cv2.drawKeypoints(image, fast_detector.convert(kp), None, color=(0, 255, 0))
 
 
+def match_keypoints(kpA, kpB, dsA, dsB, ratio, reprojectionThreshold):
+    raw_matches = matcher.knnMatch(dsA, dsB, 2)
+    matches = []
+
+    for m in raw_matches:
+        if len(m) == 2 and m[0].distance < m[1].distance * ratio:
+            matches.append((m[0].trainIdx, m[0].queryIdx))
+        if len(matches) > 100:
+            break
+
+    if len(matches) > 20:
+        cv_kpA = orb_detector.convert(kpA)
+        cv_kpB = orb_detector.convert(
+            kpB)  # doesn't matter which detector is converter, both produce same type of objects
+        pointsA = np.float32([cv_kpA[i].pt for (_, i) in matches])
+        pointsB = np.float32([cv_kpB[i].pt for (i, _) in matches])
+
+        (H, status) = cv2.findHomography(pointsA, pointsB, cv2.RANSAC, reprojectionThreshold)
+
+        return matches, H, status
+    return None
+
+
 def main():
     global detector_type
     global fast_detector
     global orb_detector
+    global Homography
     ap = argparse.ArgumentParser()
     ap.add_argument("-d", "--detect-compute", action="store_true", required=False)
     ap.add_argument("-s", "--stitch", action="store_true", required=False)
@@ -90,8 +114,29 @@ def main():
         print((end_time - start_time) / args["iterations"])
         if args["draw_keypoints"] is True:
             if detector_type is Detector.ORB:
-                keypoints_frame = cv2.drawKeypoints(image_1, orb_detector.convert(kp), None, color=(255, 0, 50))
+                cv2.imwrite(args["image_1"] + "_result.png", draw_keypoints_orb(kp, image_1))
+            if detector_type is Detector.FAST:
+                keypoints_frame = cv2.drawKeypoints(image_1, fast_detector.convert(kp), None, color=(255, 0, 50))
                 cv2.imwrite(args["image_1"] + "_result.png", keypoints_frame)
+
+    if args["stitch"] is True:
+        start_time = time.perf_counter()
+        result = None
+        for i in range(iterations):
+            if Homography is None:
+                kpA, dsA = detect_features(image_1, detector_type)
+                kpB, dsB = detect_features(image_2, detector_type)
+                (matches, H, status) = match_keypoints(kpA, kpB, dsA, dsB, 0.6, 4)
+                if H is None:
+                    continue
+
+                Homography = H
+            result = cv2.warpPerspective(image_1, Homography, (image_1.shape[1] + image_2.shape[1], image_1.shape[0]))
+            result[0:image_2.shape[0], 0:image_2.shape[1]] = image_2
+        end_time = time.perf_counter()
+        print((end_time - start_time) / iterations)
+        if result is not None:
+            cv2.imwrite("Stitch_result.png", result)
 
 
 if __name__ == '__main__':
