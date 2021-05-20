@@ -56,8 +56,7 @@ def match_keypoints(kpA, kpB, dsA, dsB, ratio, reprojectionThreshold):
 
     if len(matches) > 20:
         cv_kpA = orb_detector.convert(kpA)
-        cv_kpB = orb_detector.convert(
-            kpB)  # doesn't matter which detector is converter, both produce same type of objects
+        cv_kpB = orb_detector.convert(kpB)  # doesn't matter which detector is converter, both produce same type of objects
         pointsA = np.float32([cv_kpA[i].pt for (_, i) in matches])
         pointsB = np.float32([cv_kpB[i].pt for (i, _) in matches])
 
