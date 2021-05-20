@@ -19,11 +19,18 @@
       <paths name="nvidia@172.21.9.141:22 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
+            <mapping deploy="/home/nvidia/Desktop/THESIS" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
       <paths name="nvidia@172.21.9.141:22 password (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nvidia@172.21.9.141:22 password (10)">
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
@@ -62,6 +69,27 @@
         <serverdata>
           <mappings>
             <mapping deploy="/tmp/pycharm_project_839" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nvidia@172.21.9.141:22 password (7)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nvidia@172.21.9.141:22 password (8)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="nvidia@172.21.9.141:22 password (9)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
