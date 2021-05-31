@@ -4,7 +4,7 @@ import time
 
 
 class FeatureDetector:
-    __max_features = 500
+    __max_features = 5000
 
     def __init__(self):
         self.cudaMat = cv2.cuda_GpuMat()
