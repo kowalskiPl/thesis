@@ -7,9 +7,11 @@ import cv2
 import imutils
 import numpy as np
 
+from Stitcher import Stitcher
+
 orb_detector = cv2.cuda_ORB.create(nfeatures=1000)
 fast_detector = cv2.cuda_FastFeatureDetector.create()
-matcher = cv2.cuda_DescriptorMatcher.createBFMatcher(cv2.NORM_L1)
+matcher = cv2.cuda_DescriptorMatcher.createBFMatcher(cv2.NORM_HAMMING)
 Homography = None  # cashed homography
 
 
@@ -30,7 +32,8 @@ def detect_features(image: np.ndarray, detector: Detector):
         kp, ds = orb_detector.detectAndComputeAsync(grey_mat, None)
         return kp, ds
     else:
-        kp, ds = fast_detector.detectAndComputeAsync(grey_mat, None)
+        kp = fast_detector.detect(grey_mat)
+        kp, ds = orb_detector.describe(grey_mat, kp, None)
         return kp, ds
 
 
@@ -56,12 +59,11 @@ def match_keypoints(kpA, kpB, dsA, dsB, ratio, reprojectionThreshold):
 
     if len(matches) > 20:
         cv_kpA = orb_detector.convert(kpA)
-        cv_kpB = orb_detector.convert(
-            kpB)  # doesn't matter which detector is converter, both produce same type of objects
+        cv_kpB = orb_detector.convert(kpB)  # doesn't matter which detector is converter, both produce same type of objects
         pointsA = np.float32([cv_kpA[i].pt for (_, i) in matches])
         pointsB = np.float32([cv_kpB[i].pt for (i, _) in matches])
 
-        (H, status) = cv2.findHomography(pointsA, pointsB, cv2.RANSAC, reprojectionThreshold)
+        (H, status) = cv2.findHomography(pointsA, pointsB, cv2.RHO, reprojectionThreshold)
 
         return matches, H, status
     return None
@@ -122,20 +124,29 @@ def main():
     if args["stitch"] is True:
         start_time = time.perf_counter()
         result = None
+        stitcher = Stitcher(2)
         for i in range(iterations):
-            if Homography is None:
-                kpA, dsA = detect_features(image_1, detector_type)
-                kpB, dsB = detect_features(image_2, detector_type)
-                (matches, H, status) = match_keypoints(kpA, kpB, dsA, dsB, 0.6, 4)
-                if H is None:
-                    continue
-
-                Homography = H
-            result = cv2.warpPerspective(image_1, Homography, (image_1.shape[1] + image_2.shape[1], image_1.shape[0]))
-            result[0:image_2.shape[0], 0:image_2.shape[1]] = image_2
+            # if Homography is None:
+            #     kpA, dsA = detect_features(image_1, detector_type)
+            #     kpB, dsB = detect_features(image_2, detector_type)
+            #     (matches, H, status) = match_keypoints(kpA, kpB, dsA, dsB, 0.7, 5)
+            #     if H is None:
+            #         continue
+            #
+            #     Homography = H
+            # result = cv2.warpPerspective(image_1, Homography, (image_1.shape[1] + image_2.shape[1], image_1.shape[0] + image_2.shape[0]))
+            # result[0:image_2.shape[0], 0:image_2.shape[1]] = image_2
+            result = stitcher.stitch([image_1, image_2])
         end_time = time.perf_counter()
         print((end_time - start_time) / iterations)
         if result is not None:
+            gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+            thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)[1]
+            cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cnts = imutils.grab_contours(cnts)
+            c = max(cnts, key=cv2.contourArea)
+            (x, y, w, h) = cv2.boundingRect(c)
+            result = result[y:y + h, x:x + w]
             cv2.imwrite("Stitch_result.png", result)
 
 

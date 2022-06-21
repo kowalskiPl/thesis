@@ -1,95 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="nvidia@172.21.9.141:22 password" remoteFilesAllowedToDisappearOnAutoupload="false" autoUploadExternalChanges="true">
+  <component name="PublishConfigData" autoUpload="Always" serverName="nvidia@172.21.9.141:22" remoteFilesAllowedToDisappearOnAutoupload="false" autoUploadExternalChanges="true">
     <serverData>
       <paths name="nvidia@172.21.9.141:22">
         <serverdata>
           <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 (1)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password">
-        <serverdata>
-          <mappings>
             <mapping deploy="/home/nvidia/Desktop/THESIS" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (1)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (10)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (2)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (3)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (4)">
-        <serverdata>
-          <mappings>
-            <mapping local="$PROJECT_DIR$" web="/" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (5)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/home/nvidia/Desktop/THESIS" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (6)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_839" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (7)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (8)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
-          </mappings>
-        </serverdata>
-      </paths>
-      <paths name="nvidia@172.21.9.141:22 password (9)">
-        <serverdata>
-          <mappings>
-            <mapping deploy="/tmp/pycharm_project_679" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
