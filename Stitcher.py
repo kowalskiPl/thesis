@@ -1,6 +1,7 @@
 from time import sleep
 
 import cv2
+import imutils
 import numpy as np
 
 from FeatureDetector import FeatureDetector
@@ -9,7 +10,7 @@ from ThreadedFeatureDetector import ThreadedFeatureDetector
 
 class Stitcher:
     __cachedHomography = None
-    __maxMatches = 100  # maximum matches to improve performance
+    __maxMatches = 100 # maximum matches to improve performance
     __minMatchesRequired = 4
     __homographyAlgorithm = cv2.RHO
     __maxCameras = 4
@@ -57,27 +58,54 @@ class Stitcher:
 
         # algorithm will be different for different amount of images hence if else
         if image_count == 2:
-            return self.__stitch_two(images)
+            kp1, ds1 = self.detector.detect_features_and_keypoints(images[0])
+            kp2, ds2 = self.detector.detect_features_and_keypoints(images[1])
+            M = self.__match_keypoints(kp1, kp2, ds1, ds2, 0.8, 5)
+            if M is None:
+                return None
+            good_matches, H, status = M
+            result = cv2.warpPerspective(images[0], H, (images[0].shape[1] + images[1].shape[1], images[0].shape[0]))
+            kp2, ds2 = self.detector.detect_features_and_keypoints(result)
+            M = self.__match_keypoints(kp1, kp2, ds1, ds2, 0.8, 5)
+            if M is None:
+                return None
+            good_matches, H, status = M
+            result = cv2.warpPerspective(images[0], H, (images[0].shape[1] + images[1].shape[1], images[0].shape[0] + images[1].shape[0]))
+            result[0:images[1].shape[0], 0:images[1].shape[1]] = images[1]
+            # gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+            # thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)[1]
+            # cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # cnts = imutils.grab_contours(cnts)
+            # c = max(cnts, key=cv2.contourArea)
+            # (x, y, w, h) = cv2.boundingRect(c)
+            # result = result[y:y + h, x:x + w]
+            return result
 
         if image_count == 3:
-            self.threadedDetector_1.add_image_to_queue(images[3])
-            two_images = self.__stitch_two([images[0], images[1]])
+            # queue threaded detection
+            self.threadedDetector_1.add_image_to_queue(images[2])
+
+            kp1, ds1 = self.detector.detect_features_and_keypoints(images[0])
+            kp2, ds2 = self.detector.detect_features_and_keypoints(images[1])
+            M = self.__match_keypoints(kp1, kp2, ds1, ds2, 0.8, 5)
+            if M is None:
+                return None
+            good_matches, H, status = M
+            two_images = cv2.warpPerspective(images[0], H, (images[0].shape[1] + images[1].shape[1], images[0].shape[0]))
+            two_images[0:images[1].shape[0], 0:images[1].shape[1]] = images[1]
+
             kp3 = None
             ds3 = None
             while kp3 is None and ds3 is None:
                 kp3, ds3 = self.threadedDetector_1.get_kp_ds()
-
-
+            kp12, ds12 = self.detector.detect_features_and_keypoints(two_images)
+            M2 = self.__match_keypoints(kp12, kp3, ds12, ds3, 0.8, 5)
+            if M2 is None:
+                return None
+            good_matches, H, status = M
+            result = cv2.warpPerspective(two_images, H, (images[0].shape[1] + images[2].shape[1], two_images.shape[0]))
+            result[0:images[2].shape[0], 0:images[2].shape[1]] = images[2]
+            return result
 
         return None
 
-    def __stitch_two(self, images):
-        kp1, ds1 = self.detector.detect_features_and_keypoints(images[0])
-        kp2, ds2 = self.detector.detect_features_and_keypoints(images[1])
-        M = self.__match_keypoints(kp1, kp2, ds1, ds2, 0.8, 5)
-        if M is None:
-            return None
-        good_matches, H, status = M
-        result = cv2.warpPerspective(images[0], H, (images[0].shape[1] + images[1].shape[1], images[0].shape[0]))
-        result[0:images[1].shape[0], 0:images[1].shape[1]] = images[1]
-        return result

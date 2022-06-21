@@ -126,16 +126,17 @@ def main():
         result = None
         stitcher = Stitcher(2)
         for i in range(iterations):
-            if Homography is None:
-                kpA, dsA = detect_features(image_1, detector_type)
-                kpB, dsB = detect_features(image_2, detector_type)
-                (matches, H, status) = match_keypoints(kpA, kpB, dsA, dsB, 0.7, 5)
-                if H is None:
-                    continue
-
-                Homography = H
-            result = cv2.warpPerspective(image_1, Homography, (image_1.shape[1] + image_2.shape[1], image_1.shape[0] + image_2.shape[0]))
-            result[0:image_2.shape[0], 0:image_2.shape[1]] = image_2
+            # if Homography is None:
+            #     kpA, dsA = detect_features(image_1, detector_type)
+            #     kpB, dsB = detect_features(image_2, detector_type)
+            #     (matches, H, status) = match_keypoints(kpA, kpB, dsA, dsB, 0.7, 5)
+            #     if H is None:
+            #         continue
+            #
+            #     Homography = H
+            # result = cv2.warpPerspective(image_1, Homography, (image_1.shape[1] + image_2.shape[1], image_1.shape[0] + image_2.shape[0]))
+            # result[0:image_2.shape[0], 0:image_2.shape[1]] = image_2
+            result = stitcher.stitch([image_1, image_2])
         end_time = time.perf_counter()
         print((end_time - start_time) / iterations)
         if result is not None:
